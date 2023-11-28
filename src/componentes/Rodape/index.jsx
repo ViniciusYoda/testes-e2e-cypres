@@ -2,9 +2,9 @@ import React from 'react';
 import estilos from './Rodape.module.css';
 
 import logoBytebank from './logo-bytebank.svg';
-import instagram from 'assets/instagram.svg';
-import whatsapp from 'assets/whatsapp.svg';
-import youtube from 'assets/youtube.svg';
+import instagram from '../../assets/instagram.svg';
+import whatsapp from '../../assets/whatsapp.svg';
+import youtube from '../../assets/youtube.svg';
 
 export default function Rodape() {
   return (

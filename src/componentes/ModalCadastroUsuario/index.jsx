@@ -1,59 +1,14 @@
 import estilos from './ModalCadastroUsuario.module.css';
-import { useState } from 'react';
-import api from 'services/api';
+import api from 'common/services/api';
+import { validaDadosFormulario } from 'common/validacoes/validaFomulario';
 import ilustracaoCadastro from './assets/ilustracao-cadastro.svg';
 import Botao from 'componentes/Botao';
-import { validaDadosFormulario } from 'validacoes/validaFomulario';
+import { useModalContext } from 'common/hooks/useModalContext';
+import { ModalContext } from 'common/context/ModalContext';
 
 export default function ModalCadastroUsuario({ aberta, aoFechar }) {
-  const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
-  const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState({});
-
-  const onSubmit = async (event) => {
-    event.preventDefault();
-    const usuario = {
-      nome,
-      email,
-      senha,
-    };
-
-    const result = await validaDadosFormulario(usuario);
-
-    if (!result.valid) {
-      setErro({
-        path: result.path,
-        message: result.message,
-      });
-      return;
-    }
-
-    api
-      .post('/public/cadastrar', usuario)
-      .then(() => {
-        setErro({
-          path: 'message-sucess',
-          message: 'Usuário cadastrado com sucesso!',
-        });
-        setNome('');
-        setEmail('');
-        setSenha('');
-        setTimeout(() => {
-          aoFechar();
-          setErro({
-            path: '',
-            message: '',
-          });
-        }, 1000);
-      })
-      .catch((erro) => {
-        setErro({
-          path: 'email',
-          message: erro?.response?.data?.message,
-        });
-      });
-  };
+  const { nome, email, senha, erro, handleChange, onSubmitCadastro } =
+    useModalContext(ModalContext);
 
   if (!aberta) {
     return <></>;
@@ -84,7 +39,12 @@ export default function ModalCadastroUsuario({ aberta, aoFechar }) {
           <p className={estilos.modal__descricao}>
             Preencha os campos abaixo para criar sua conta corrente!
           </p>
-          <form onSubmit={onSubmit} className={estilos.modal__form}>
+          <form
+            onSubmit={() =>
+              onSubmitCadastro(event, api, aoFechar, validaDadosFormulario)
+            }
+            className={estilos.modal__form}
+          >
             <label htmlFor="nome">
               Nome
               <input
@@ -92,8 +52,9 @@ export default function ModalCadastroUsuario({ aberta, aoFechar }) {
                 id="nome"
                 data-test="nome-input"
                 placeholder="Digite seu nome completo"
+                name="nome"
                 value={nome}
-                onChange={(event) => setNome(event.target.value)}
+                onChange={handleChange}
               />
               {erro.path === 'nome' ? (
                 <span data-test="mensagem-erro">{erro.message}</span>
@@ -107,8 +68,9 @@ export default function ModalCadastroUsuario({ aberta, aoFechar }) {
                 type="email"
                 data-test="email-input"
                 placeholder="Digite seu email"
+                name="email"
                 value={email}
-                onChange={(event) => setEmail(event.target.value)}
+                onChange={handleChange}
               />
               {erro.path === 'email' ? (
                 <span data-test="mensagem-erro">{erro.message}</span>
@@ -123,8 +85,9 @@ export default function ModalCadastroUsuario({ aberta, aoFechar }) {
                 id="senha"
                 data-test="senha-input"
                 placeholder="Digite sua senha"
+                name="senha"
                 value={senha}
-                onChange={(event) => setSenha(event.target.value)}
+                onChange={handleChange}
               />
               {erro.path === 'senha' ? (
                 <span data-test="mensagem-erro">{erro.message}</span>
@@ -143,7 +106,7 @@ export default function ModalCadastroUsuario({ aberta, aoFechar }) {
                 dados conforme descrito na Política de Privacidade do banco.
               </p>
             </div>
-            <Botao acaoBotao="enviar" texto="Criar conta" />
+            <Botao dataTest="botao-enviar" texto="Criar conta" />
           </form>
         </div>
       </div>
